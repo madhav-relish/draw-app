@@ -1,0 +1,19 @@
+{
+  "name": "http-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pnpm run build",
+    "dev": "",
+    "start": ""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@repo/typescript-config": "workspace:*"
+  }
+}
