@@ -2,15 +2,15 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { middleware } from './middleware';
 import { JWT_SECRET } from '@repo/backend-common/config';
-import { CreateUserSchema } from '@repo/common/types';
+import { CreateRoomSchema, CreateUserSchema, SignInSchema } from '@repo/common/types';
 
 const app = express();
 
-app.post('/singup', (req, res)=>{
+app.post('/singup', (req, res) => {
     //db call
 
     const data = CreateUserSchema.safeParse(req.body)
-    if(!data.success){
+    if (!data.success) {
         return res.json({
             message: "Incorrect credentials"
         })
@@ -22,10 +22,17 @@ app.post('/singup', (req, res)=>{
 })
 
 
-app.post('/singin', (req, res)=>{
+app.post('/singin', (req, res) => {
+
+    const data = SignInSchema.safeParse(req.body)
+    if (!data.success) {
+        return res.json({
+            message: "Incorrect credentials"
+        })
+    }
 
     const userId = 1;
-   const token =  jwt.sign({
+    const token = jwt.sign({
         userId,
     }, JWT_SECRET);
 
@@ -34,8 +41,15 @@ app.post('/singin', (req, res)=>{
     })
 })
 
-app.post('/create-room', middleware,  (req, res)=>{
+app.post('/create-room', middleware, (req, res) => {
     //db call
+
+    const data = CreateRoomSchema.safeParse(req.body)
+    if (!data.success) {
+        return res.json({
+            message: "Incorrect credentials"
+        })
+    }
     res.json({
         roomId: 123
     })
