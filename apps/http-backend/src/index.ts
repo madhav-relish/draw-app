@@ -1,12 +1,20 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { middleware } from './middleware';
-import { JWT_SECRET } from './config';
+import { JWT_SECRET } from '@repo/backend-common/config';
+import { CreateUserSchema } from '@repo/common/types';
 
 const app = express();
 
 app.post('/singup', (req, res)=>{
     //db call
+
+    const data = CreateUserSchema.safeParse(req.body)
+    if(!data.success){
+        return res.json({
+            message: "Incorrect credentials"
+        })
+    }
 
     res.json({
         userId: 123
