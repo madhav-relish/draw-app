@@ -43,26 +43,44 @@ app.post('/signup', async (req, res) => {
 })
 
 
-app.post('/singin', (req, res) => {
+app.post('/singin', async (req, res) => {
 
-    const data = SignInSchema.safeParse(req.body)
-    if (!data.success) {
+    const parsedData = SignInSchema.safeParse(req.body)
+    if (!parsedData.success) {
         return res.json({
             message: "Incorrect credentials"
         })
     }
 
-    const userId = 1;
-    const token = jwt.sign({
-        userId,
-    }, JWT_SECRET);
+    try {
+        const user = await prismaClient.user.findFirst({
+            where: {
+                email: parsedData.data.username,
+                password: parsedData.data.password
+            }
+        })
 
-    res.json({
-        token
-    })
+        if (!user) {
+            return res.json({
+                message: "User not found!"
+            })
+        }
+        //@ts-ignore
+        const userId = req.userId;
+        const token = jwt.sign({
+            userId,
+        }, JWT_SECRET);
+
+        res.json({
+            token
+        })
+    } catch (error) {
+        console.log("Error while signin in::", error)
+    }
+
 })
 
-app.post('/create-room', middleware, (req, res) => {
+app.post('/create-room', middleware, async (req, res) => {
     //db call
 
     const parsedData = CreateRoomSchema.safeParse(req.body)
@@ -72,15 +90,25 @@ app.post('/create-room', middleware, (req, res) => {
         })
     }
 
-    // prismaClient.room.create({
-    //     data: {
-    //         slug: parsedData?.data?.name,
+    //@ts-ignore
+    const userId = req.userId
 
-    //     }
-    // })
-    res.json({
-        roomId: 123
-    })
+    try {
+
+
+        const room = await prismaClient.room.create({
+            data: {
+                slug: parsedData.data.name,
+                adminId: userId
+            }
+        })
+        res.json({
+            roomId: room.id
+        })
+    } catch (error) {
+        //TODO:: Do error handling
+        console.log("Error while creating room::", error)
+    }
 })
 
 app.listen(3004);
