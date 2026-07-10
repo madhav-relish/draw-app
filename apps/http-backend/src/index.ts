@@ -9,18 +9,19 @@ const app = express();
 
 app.use(express.json())
 
-app.post('/singup', async(req, res) => {
+app.post('/signup', async (req, res) => {
     //db call
 
     const parsedData = CreateUserSchema.safeParse(req.body)
     if (!parsedData.success) {
+        console.log("Error::", parsedData.error)
         return res.json({
             message: "Incorrect credentials"
         })
     }
 
     try {
-    const user =  await prismaClient.user.create({
+        const user = await prismaClient.user.create({
             data: {
                 email: parsedData.data.username,
                 password: parsedData.data.password,
@@ -32,8 +33,9 @@ app.post('/singup', async(req, res) => {
             userId: user.id
         })
     } catch (error) {
+        console.log("Error::", error)
         res.status(401).json({
-           message: "Something is wrong with the data"
+            message: "Something is wrong with the data"
         })
     }
 

@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc -b",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "exports": {
-    "./client": "./src/index.ts"
+    "./client": "./dist/index.js"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
@@ -16,10 +17,10 @@
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "prisma": "^7.8.0"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "license": "ISC"
 }
