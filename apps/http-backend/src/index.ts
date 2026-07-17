@@ -42,8 +42,7 @@ app.post('/signup', async (req, res) => {
 
 })
 
-
-app.post('/singin', async (req, res) => {
+app.post('/signin', async (req, res) => {
 
     const parsedData = SignInSchema.safeParse(req.body)
     if (!parsedData.success) {
@@ -65,10 +64,9 @@ app.post('/singin', async (req, res) => {
                 message: "User not found!"
             })
         }
-        //@ts-ignore
-        const userId = req.userId;
+
         const token = jwt.sign({
-            userId,
+            userId: user?.id,
         }, JWT_SECRET);
 
         res.json({
@@ -83,31 +81,54 @@ app.post('/singin', async (req, res) => {
 app.post('/create-room', middleware, async (req, res) => {
     //db call
 
-    const parsedData = CreateRoomSchema.safeParse(req.body)
+    const parsedData = CreateRoomSchema.safeParse(req.body);
     if (!parsedData.success) {
-        return res.json({
-            message: "Incorrect credentials"
+        res.json({
+            message: "Incorrect inputs"
         })
+        return;
     }
-
-    //@ts-ignore
-    const userId = req.userId
+    // @ts-ignore: TODO: Fix this
+    const userId = req.userId;
 
     try {
-
-
         const room = await prismaClient.room.create({
             data: {
                 slug: parsedData.data.name,
                 adminId: userId
             }
         })
+
         res.json({
             roomId: room.id
         })
+    } catch (e) {
+        console.log("Error in creating room::", e)
+        res.status(411).json({
+            message: "Room already exists with this name"
+        })
+    }
+})
+
+app.get("/chat/:roomId", async (req, res) => {
+
+    try {
+
+        const roomId = Number(req.params.roomId);
+        const messages = await prismaClient.chat.findMany({
+            where: {
+                roomId: roomId
+            },
+            orderBy: {
+                id: 'desc'
+            },
+            take: 50
+        })
+        res.json({
+            messages
+        })
     } catch (error) {
-        //TODO:: Do error handling
-        console.log("Error while creating room::", error)
+        console.log("Error while getting chats::", error)
     }
 })
 
