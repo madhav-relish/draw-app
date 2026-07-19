@@ -3,10 +3,7 @@ import React from 'react'
 
 const SignIn = () => {
   return (
-    <div>SignIn
-
-        <AuthPage/>
-    </div>
+    <AuthPage isSignin={true} />
   )
 }
 

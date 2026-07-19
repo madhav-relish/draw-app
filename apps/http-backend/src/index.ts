@@ -4,10 +4,18 @@ import { middleware } from './middleware';
 import { JWT_SECRET } from '@repo/backend-common/config';
 import { CreateRoomSchema, CreateUserSchema, SignInSchema } from '@repo/common/types';
 import { prismaClient } from "@repo/db/client"
-
+const cors = require('cors')
 const app = express();
 
+app.use(cors())
+
 app.use(express.json())
+
+app.get('/', (req, res) => {
+    res.json({
+        message: "Hello from /"
+    })
+})
 
 app.post('/signup', async (req, res) => {
     //db call
@@ -23,7 +31,7 @@ app.post('/signup', async (req, res) => {
     try {
         const user = await prismaClient.user.create({
             data: {
-                email: parsedData.data.username,
+                email: parsedData.data.email,
                 password: parsedData.data.password,
                 name: parsedData.data.name
             }
@@ -54,7 +62,7 @@ app.post('/signin', async (req, res) => {
     try {
         const user = await prismaClient.user.findFirst({
             where: {
-                email: parsedData.data.username,
+                email: parsedData.data.email,
                 password: parsedData.data.password
             }
         })

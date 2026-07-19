@@ -1,26 +1,82 @@
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap');
+
 @import "tailwindcss";
 
+/* Enable manual dark mode via .dark class in Tailwind CSS v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F4F4F0;
+  --foreground: #111111;
+  --card: #FFFFFF;
+  --primary: #FF5C00;
+  --secondary: #FFE873;
+  --accent: #4D9FFF;
+  --border-color: #111111;
 }
 
-@theme inline {
+:root.dark {
+  --background: #0A0A0A;
+  --foreground: #F4F4F0;
+  --card: #151515;
+  --primary: #FF5C00;
+  --secondary: #A5FFEB;
+  --accent: #FF4D9C;
+  --border-color: #F4F4F0;
+}
+
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-border: var(--border-color);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-manrope), sans-serif;
+  --font-clash: 'Clash Display', sans-serif;
+  --font-manrope: var(--font-manrope), sans-serif;
+
+  --shadow-brutal-sm: 3px 3px 0 0 var(--border-color);
+  --shadow-brutal: 6px 6px 0 0 var(--border-color);
+  --shadow-brutal-lg: 10px 10px 0 0 var(--border-color);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Grid Patterns */
+.bg-grid-pattern {
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(17, 17, 17, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(17, 17, 17, 0.05) 1px, transparent 1px);
+}
+
+.dark .bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(244, 244, 240, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244, 244, 240, 0.04) 1px, transparent 1px);
+}
+
+/* Orange Dot Blink CSS */
+@keyframes blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); }
+}
+
+.animate-blink {
+  animation: blink 1.5s infinite ease-in-out;
+}
+
+/* Custom transitions to avoid transition-all */
+.transition-brutal {
+  transition-property: transform, box-shadow, background-color, border-color, color;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
