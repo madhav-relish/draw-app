@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Canvas } from "./Canvas";
+import { Loading } from "@repo/ui";
 
 export const RoomCanvas = ({ roomId }: { roomId: string }) => {
 
@@ -26,7 +27,7 @@ export const RoomCanvas = ({ roomId }: { roomId: string }) => {
     }, [])
 
     if (!socket) {
-        return <div> Connecting to server... </div>
+        return <Loading fullPage label="Connecting to workspace..." size="lg" />
     }
 
     return <Canvas roomId={roomId} socket={socket} />

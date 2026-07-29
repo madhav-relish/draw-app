@@ -153,5 +153,73 @@ app.get("/room/:slug", async (req, res) => {
     })
 })
 
+app.get("/me", middleware, async (req, res) => {
+    // @ts-ignore
+    const userId = req.userId;
 
-app.listen(3004);
+    try {
+        const user = await prismaClient.user.findUnique({
+            where: {
+                id: userId
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        res.json({
+            user
+        });
+    } catch (error) {
+        console.log("Error fetching user details::", error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+});
+
+app.get("/rooms", middleware, async (req, res) => {
+    // @ts-ignore
+    const userId = req.userId;
+
+    try {
+        const rooms = await prismaClient.room.findMany({
+            where: {
+                OR: [
+                    { adminId: userId },
+                    { chats: { some: { userId } } }
+                ]
+            },
+            include: {
+                admin: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        res.json({
+            rooms
+        });
+    } catch (error) {
+        console.log("Error while fetching rooms::", error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+});
+
+app.listen(8080);

@@ -48,6 +48,7 @@ export default function AuthPage({ isSignin }: AuthPageProps) {
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
       }
+      router.push('/dashboard');
     } catch (err: any) {
       console.error("Error while signing in::", err);
       setError(err.response?.data?.message || "Invalid credentials. Please try again.");

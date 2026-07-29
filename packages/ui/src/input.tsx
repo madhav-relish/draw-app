@@ -33,7 +33,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || generatedId;
 
     const inputBaseStyles =
-      "w-full border-2 border-border p-3.5 rounded-xl bg-background text-foreground font-sans font-medium text-sm focus:outline-none focus:ring-2 focus:ring-primary shadow-brutal-sm focus:shadow-brutal transition-brutal placeholder:text-foreground/30 disabled:opacity-50 disabled:cursor-not-allowed";
+      "w-full border-2 border-border p-3 rounded-xl bg-background text-foreground font-sans font-medium text-sm focus:outline-none focus:ring-2 focus:ring-primary shadow-brutal-sm focus:shadow-brutal transition-brutal placeholder:text-foreground/30 disabled:opacity-50 disabled:cursor-not-allowed";
 
     const errorStyles = error ? "border-red-500 focus:ring-red-500" : "";
     const iconPaddingStyles = `${leftIcon ? "pl-11" : ""} ${rightIcon ? "pr-11" : ""}`;
@@ -48,7 +48,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       .join(" ");
 
     return (
-      <div className={`flex flex-col gap-1.5 w-full ${containerClassName}`}>
+      <div className={`flex flex-col gap-1 w-full ${containerClassName}`}>
         {label && (
           <label
             htmlFor={inputId}
@@ -81,7 +81,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {error}
           </p>
         ) : hint ? (
-          <p className="font-sans text-xs text-foreground/50 mt-0.5">
+          <p className="font-sans text-xs text-foreground/50 mt-1">
             {hint}
           </p>
         ) : null}

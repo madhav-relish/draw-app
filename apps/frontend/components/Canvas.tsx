@@ -1,5 +1,6 @@
 import { initDraw } from "@/draw";
 import { useEffect, useRef, useState } from "react";
+import { Loading } from "@repo/ui";
 
 
 export const Canvas = ({ roomId, socket }: {
@@ -10,10 +11,9 @@ export const Canvas = ({ roomId, socket }: {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        console.log("current outer")
         if (canvasRef.current) {
             setIsLoading(true)
-            console.log("Current")
+
             const canvas = canvasRef.current;
 
             initDraw(canvas, socket, roomId)
@@ -22,12 +22,15 @@ export const Canvas = ({ roomId, socket }: {
 
     }, [canvasRef, roomId, socket])
 
-    if (isLoading) return <div>Loading....</div>
+    if (isLoading) return <Loading fullPage label="Initializing Canvas..." size="lg" />
 
-    return <canvas ref={canvasRef} style={{
-        width: "100vw",
-        height: "100vh"
-    }}
-        width={window.innerWidth} height={window.innerHeight}
-    />
+    return <div style={{
+        height: '100vh',
+        overflow: 'hidden'
+    }}>
+
+        <canvas ref={canvasRef}
+            width={window.innerWidth} height={window.innerHeight}
+        />
+    </div>
 } 
