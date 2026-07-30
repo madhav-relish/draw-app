@@ -1,31 +1,45 @@
-## Build the docker image 
-name: Deploy the backend
+name: Deploy HTTP Backend
+
 on:
   push:
     branches: [ main ]
-  jobs:
-    build:
-     runs-on: ubuntu-latest
-     steps:
-      - name: Checkout the code
+    paths:
+      - 'apps/http-backend/**'
+      - 'packages/**'
+      - 'docker/Dockerfile.backend'
+      - '.github/workflows/cd_backend.yaml'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Docker login
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with: 
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-## Push the image to docker hub
-
-      - name: Build and Push
-        uses: docker/build-push-action@v5 
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./docker/Dockerfile.backend
           push: true
-          tags: | 
+          tags: |
             madhav-relish/figment-backend:${{ github.sha }}
             madhav-relish/figment-backend:latest
 
-## SSH into VM and start new image
+      # Optional: Auto-deploy to EC2 via SSH
+      # - name: Deploy to EC2
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ubuntu
+      #     key: ${{ secrets.EC2_SSH_KEY }}
+      #     script: |
+      #       cd /home/ubuntu/draw-app
+      #       docker compose pull http-backend
+      #       docker compose up -d http-backend
