@@ -11,14 +11,12 @@ COPY ./pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY ./packages ./packages
 COPY ./turbo.json ./turbo.json
 
-COPY ./apps/ws-backend ./apps/ws-backend
+COPY ./apps ./apps
 
 RUN pnpm install
 
-COPY . .
-
 RUN pnpm run db:generate
-RUN pnpm run build
+RUN pnpm turbo run build --filter=ws-backend
 
 EXPOSE 8081
 
