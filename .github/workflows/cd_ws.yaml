@@ -29,5 +29,5 @@ jobs:
           file: ./docker/Dockerfile.ws
           push: true
           tags: |
-            madhav-relish/figment-ws:${{ github.sha }}
-            madhav-relish/figment-ws:latest
+            madhavsingh203/figment-ws:${{ github.sha }}
+            madhavsingh203/figment-ws:latest

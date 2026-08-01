@@ -29,5 +29,5 @@ jobs:
           file: ./docker/Dockerfile.frontend
           push: true
           tags: |
-            madhav-relish/figment-frontend:${{ github.sha }}
-            madhav-relish/figment-frontend:latest
+            madhavsingh203/figment-frontend:${{ github.sha }}
+            madhavsingh203/figment-frontend:latest

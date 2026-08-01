@@ -29,8 +29,8 @@ jobs:
           file: ./docker/Dockerfile.backend
           push: true
           tags: |
-            madhav-relish/figment-backend:${{ github.sha }}
-            madhav-relish/figment-backend:latest
+            madhavsingh203/figment-backend:${{ github.sha }}
+            madhavsingh203/figment-backend:latest
 
       # Optional: Auto-deploy to EC2 via SSH
       # - name: Deploy to EC2
