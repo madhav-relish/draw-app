@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { BACKEND_ENDPOINT } from "@/config";
+import { BACKEND_URL } from "@/config";
 import { Card, Background, Loading } from "@repo/ui";
 import { DashboardHeader } from "./DashboardHeader";
 import { CreateRoomCard } from "./CreateRoomCard";
@@ -36,8 +36,7 @@ export const Dashboard = () => {
 
   const fetchRooms = async (authToken: string) => {
     try {
-      const baseUrl = BACKEND_ENDPOINT || "http://localhost:3004";
-      const roomsRes = await axios.get(`${baseUrl}/rooms`, {
+      const roomsRes = await axios.get(`${BACKEND_URL}/rooms`, {
         headers: { Authorization: authToken },
       });
       setRooms(roomsRes.data.rooms);
@@ -53,16 +52,14 @@ export const Dashboard = () => {
       return;
     }
     setToken(storedToken);
-    
-    const baseUrl = BACKEND_ENDPOINT || "http://localhost:3004";
 
     const fetchDashboardData = async () => {
       try {
         const [userRes, roomsRes] = await Promise.all([
-          axios.get(`${baseUrl}/me`, {
+          axios.get(`${BACKEND_URL}/me`, {
             headers: { Authorization: storedToken },
           }),
-          axios.get(`${baseUrl}/rooms`, {
+          axios.get(`${BACKEND_URL}/rooms`, {
             headers: { Authorization: storedToken },
           })
         ]);

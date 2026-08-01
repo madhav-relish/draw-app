@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Canvas } from "./Canvas";
 import { Loading } from "@repo/ui";
+import { WS_URL } from "@/config";
 
 export const RoomCanvas = ({ roomId }: { roomId: string }) => {
 
@@ -12,7 +13,7 @@ export const RoomCanvas = ({ roomId }: { roomId: string }) => {
     useEffect(() => {
 
         const token = localStorage.getItem('authToken')
-        const ws = new WebSocket(`ws://localhost:8081?token=${token}`)
+        const ws = new WebSocket(`${WS_URL}?token=${token}`)
 
         ws.onopen = () => {
             setSocket(ws);

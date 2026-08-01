@@ -7,7 +7,7 @@ import ThemeToggle from "./ThemeToggle";
 import { ArrowRight } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { BACKEND_ENDPOINT } from "@/config";
+import { BACKEND_URL } from "@/config";
 import { Button, Input, Card, Divider, Background } from "@repo/ui";
 
 interface AuthPageProps {
@@ -26,8 +26,7 @@ export default function AuthPage({ isSignin }: AuthPageProps) {
     try {
       setLoading(true);
       setError(null);
-      const baseUrl = BACKEND_ENDPOINT || "http://localhost:3004";
-      const response = await axios.post(`${baseUrl}/signup`, bodyData);
+      const response = await axios.post(`${BACKEND_URL}/signup`, bodyData);
       console.log("SignedUp::", response.data);
       router.push("/signin");
     } catch (err: any) {
@@ -42,8 +41,7 @@ export default function AuthPage({ isSignin }: AuthPageProps) {
     try {
       setLoading(true);
       setError(null);
-      const baseUrl = BACKEND_ENDPOINT || "http://localhost:3004";
-      const response = await axios.post(`${baseUrl}/signin`, bodyData);
+      const response = await axios.post(`${BACKEND_URL}/signin`, bodyData);
       console.log("SignedIn::", response.data);
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);

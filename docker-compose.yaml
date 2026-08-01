@@ -1,3 +1,30 @@
 version: '3.8'
-services: 
+
+services:
+  http-backend:
+    image: madhavsingh203/figment-backend:latest
+    container_name: http-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+
+  ws-backend:
+    image: madhavsingh203/figment-ws:latest
+    container_name: ws-backend
+    restart: always
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./.env
+  
+  frontend:
+    image: madhavsingh203/figment-frontend:latest
+    container_name: frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env
   

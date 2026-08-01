@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { BACKEND_ENDPOINT } from "@/config";
+import { BACKEND_URL } from "@/config";
 import { Button, Input, Card } from "@repo/ui";
 import { SearchIcon, SparklesIcon } from "lucide-react";
 
@@ -21,8 +21,7 @@ export const JoinRoomCard: React.FC = () => {
     setIsJoining(true);
 
     try {
-      const baseUrl = BACKEND_ENDPOINT || "http://localhost:3004";
-      const response = await axios.get(`${baseUrl}/room/${joinRoomSlug.trim()}`);
+      const response = await axios.get(`${BACKEND_URL}/room/${joinRoomSlug.trim()}`);
       const room = response.data.room;
 
       if (!room) {

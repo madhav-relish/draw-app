@@ -31,3 +31,15 @@ jobs:
           tags: |
             madhavsingh203/figment-ws:${{ github.sha }}
             madhavsingh203/figment-ws:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/draw-app
+            docker compose pull ws-backend
+            docker compose up -d ws-backend
+

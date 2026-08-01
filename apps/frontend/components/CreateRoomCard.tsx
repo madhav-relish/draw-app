@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { BACKEND_ENDPOINT } from "@/config";
+import { BACKEND_URL } from "@/config";
 import { Button, Input, Card } from "@repo/ui";
 import { PlusIcon, ArrowRightIcon } from "lucide-react";
 
@@ -29,9 +29,8 @@ export const CreateRoomCard: React.FC<CreateRoomCardProps> = ({
     setIsCreating(true);
 
     try {
-      const baseUrl = BACKEND_ENDPOINT || "http://localhost:3004";
       const response = await axios.post(
-        `${baseUrl}/create-room`,
+        `${BACKEND_URL}/create-room`,
         { name: newRoomName.trim() },
         { headers: { Authorization: token } }
       );

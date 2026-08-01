@@ -28,6 +28,21 @@ jobs:
           context: .
           file: ./docker/Dockerfile.frontend
           push: true
+          build-args: |
+            NEXT_PUBLIC_HTTP_BACKEND_URL=http://${{ secrets.EC2_HOST }}:8080
+            NEXT_PUBLIC_WS_URL=ws://${{ secrets.EC2_HOST }}:8081
           tags: |
             madhavsingh203/figment-frontend:${{ github.sha }}
             madhavsingh203/figment-frontend:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/draw-app
+            docker compose pull frontend
+            docker compose up -d frontend
+
