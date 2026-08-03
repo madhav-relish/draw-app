@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   http-backend:
-    image: madhavsingh203/figment/figment-backend:latest
+    image: madhavsingh203/figment-backend:latest
     container_name: http-backend
     restart: always
     ports:
@@ -11,7 +9,7 @@ services:
       - ./.env
 
   ws-backend:
-    image: madhavsingh203/figment/figment-ws:latest
+    image: madhavsingh203/figment-ws:latest
     container_name: ws-backend
     restart: always
     ports:
@@ -20,7 +18,7 @@ services:
       - ./.env
   
   frontend:
-    image: madhavsingh203/figment/figment-frontend:latest
+    image: madhavsingh203/figment-frontend:latest
     container_name: frontend
     restart: always
     ports:
