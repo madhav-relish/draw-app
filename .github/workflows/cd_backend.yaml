@@ -29,8 +29,8 @@ jobs:
           file: ./docker/Dockerfile.backend
           push: true
           tags: |
-            madhavsingh203/figment-backend:${{ github.sha }}
-            madhavsingh203/figment-backend:latest
+            madhavsingh203/figment/figment-backend:${{ github.sha }}
+            madhavsingh203/figment/figment-backend:latest
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3

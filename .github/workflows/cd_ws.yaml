@@ -29,8 +29,8 @@ jobs:
           file: ./docker/Dockerfile.ws
           push: true
           tags: |
-            madhavsingh203/figment-ws:${{ github.sha }}
-            madhavsingh203/figment-ws:latest
+            madhavsingh203/figment/figment-ws:${{ github.sha }}
+            madhavsingh203/figment/figment-ws:latest
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3

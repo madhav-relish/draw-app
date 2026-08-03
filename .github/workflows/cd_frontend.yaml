@@ -32,8 +32,8 @@ jobs:
             NEXT_PUBLIC_HTTP_BACKEND_URL=http://${{ secrets.EC2_HOST }}:8080
             NEXT_PUBLIC_WS_URL=ws://${{ secrets.EC2_HOST }}:8081
           tags: |
-            madhavsingh203/figment-frontend:${{ github.sha }}
-            madhavsingh203/figment-frontend:latest
+            madhavsingh203/figment/figment-frontend:${{ github.sha }}
+            madhavsingh203/figment/figment-frontend:latest
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
