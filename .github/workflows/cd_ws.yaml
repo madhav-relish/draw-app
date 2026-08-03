@@ -42,4 +42,5 @@ jobs:
             cd ~/draw-app
             docker compose pull ws-backend
             docker compose up -d ws-backend
+            docker image prune -f
 

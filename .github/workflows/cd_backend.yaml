@@ -42,4 +42,5 @@ jobs:
             cd ~/draw-app
             docker compose pull http-backend
             docker compose up -d http-backend
+            docker image prune -f
 

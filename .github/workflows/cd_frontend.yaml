@@ -45,4 +45,5 @@ jobs:
             cd ~/draw-app
             docker compose pull frontend
             docker compose up -d frontend
+            docker image prune -f
 

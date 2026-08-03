@@ -1,6 +1,6 @@
-FROM node:24-alpine
+FROM node:20-alpine
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9.0.0
 
 WORKDIR /usr/src/app
 
