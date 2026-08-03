@@ -17,6 +17,7 @@ services:
     env_file:
       - ./.env
   
+  
   frontend:
     image: madhavsingh203/figment-frontend:latest
     container_name: frontend
