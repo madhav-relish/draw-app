@@ -42,7 +42,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/draw-app
-            docker compose pull http-backend
-            docker compose up -d http-backend
-            docker image prune -f
+            sudo docker compose pull http-backend
+            sudo docker compose up -d http-backend
+            sudo docker image prune -f
 
