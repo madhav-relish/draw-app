@@ -72,7 +72,6 @@ app.post('/signin', async (req, res) => {
         })
 
         if (!user) {
-            console.log("User not found:::::", user)
             res.status(404).json({
                 message: "User not found!"
             })
@@ -81,7 +80,6 @@ app.post('/signin', async (req, res) => {
 
         const isMatch = await bcrypt.compare(parsedData.data.password, user.password)
 
-        console.log("isMAtched::", isMatch)
         if (!isMatch) {
             res.status(401).json({
                 message: "Password is incorrect"
@@ -165,6 +163,29 @@ app.get("/room/:slug", async (req, res) => {
             slug
         }
     });
+
+    if (!room) {
+        res.status(404).json({
+            message: "Room not found!"
+        })
+        return
+    }
+
+    const isUserInTheRoom = prismaClient.user.findFirst({
+        where: {
+            rooms: {
+                some: {
+                    id: room.id
+                }
+            }
+        }
+    })
+
+    if (!isUserInTheRoom) {
+        res.status(401).json({
+            message: "You are not part of this room!"
+        })
+    }
 
     res.json({
         room

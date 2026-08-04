@@ -43,9 +43,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizeStyles = {
-      sm: "py-2 px-3 text-xs rounded-lg",
-      md: "py-3 px-4 text-xs sm:text-sm rounded-xl",
-      lg: "py-3 px-6 text-sm sm:text-base rounded-xl",
+      sm: "py-1 px-3 text-xs rounded-lg",
+      md: "py-2 px-4 text-xs sm:text-sm rounded-xl",
+      lg: "py-2 px-6 text-sm sm:text-base rounded-xl",
     };
 
     const widthStyle = fullWidth ? "w-full" : "";
