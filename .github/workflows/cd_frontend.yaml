@@ -31,8 +31,8 @@ jobs:
           file: ./docker/Dockerfile.frontend
           push: true
           build-args: |
-            NEXT_PUBLIC_HTTP_BACKEND_URL=http://api-figment.madhavsingh.me
-            NEXT_PUBLIC_WS_URL=ws://ws-figment.madhavsingh.me
+            NEXT_PUBLIC_HTTP_BACKEND_URL=https://api-figment.madhavsingh.me
+            NEXT_PUBLIC_WS_URL=wss://ws-figment.madhavsingh.me
 
           tags: |
             madhavsingh203/figment-frontend:${{ github.sha }}
