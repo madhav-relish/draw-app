@@ -18,6 +18,8 @@
     "@repo/typescript-config": "workspace:*"
   },
   "dependencies": {
-    "@types/node": "^22.15.3"
+    "@types/dotenv": "^8.2.3",
+    "@types/node": "^22.15.3",
+    "dotenv": "^17.4.2"
   }
 }

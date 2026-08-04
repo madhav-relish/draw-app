@@ -4,6 +4,7 @@ import { middleware } from './middleware';
 import { JWT_SECRET } from '@repo/backend-common/config';
 import { CreateRoomSchema, CreateUserSchema, SignInSchema } from '@repo/common/types';
 import { prismaClient } from "@repo/db/client"
+import bcrypt from 'bcryptjs';
 const cors = require('cors')
 const app = express();
 
@@ -23,16 +24,19 @@ app.post('/signup', async (req, res) => {
     const parsedData = CreateUserSchema.safeParse(req.body)
     if (!parsedData.success) {
         console.log("Error::", parsedData.error)
-        return res.json({
+        return res.status(400).json({
             message: "Incorrect credentials"
         })
     }
 
     try {
+
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(parsedData.data.password, saltRounds)
         const user = await prismaClient.user.create({
             data: {
                 email: parsedData.data.email,
-                password: parsedData.data.password,
+                password: hashedPassword,
                 name: parsedData.data.name
             }
         })
@@ -54,25 +58,34 @@ app.post('/signin', async (req, res) => {
 
     const parsedData = SignInSchema.safeParse(req.body)
     if (!parsedData.success) {
-        return res.json({
+        res.status(400).json({
             message: "Incorrect credentials"
         })
+        return;
     }
 
     try {
         const user = await prismaClient.user.findFirst({
             where: {
-                email: parsedData.data.email,
-                password: parsedData.data.password
+                email: parsedData.data.email
             }
         })
 
         if (!user) {
-            return res.json({
+            res.status(404).json({
                 message: "User not found!"
             })
+            return;
         }
 
+        const isMatch = await bcrypt.compare(parsedData.data.password, user.password)
+
+        if (!isMatch) {
+            res.status(401).json({
+                message: "Password is incorrect"
+            })
+            return;
+        }
         const token = jwt.sign({
             userId: user?.id,
         }, JWT_SECRET);
@@ -82,6 +95,9 @@ app.post('/signin', async (req, res) => {
         })
     } catch (error) {
         console.log("Error while signin in::", error)
+        res.status(401).json({
+            message: "Something doesn't seem right"
+        })
     }
 
 })
@@ -147,6 +163,29 @@ app.get("/room/:slug", async (req, res) => {
             slug
         }
     });
+
+    if (!room) {
+        res.status(404).json({
+            message: "Room not found!"
+        })
+        return
+    }
+
+    const isUserInTheRoom = prismaClient.user.findFirst({
+        where: {
+            rooms: {
+                some: {
+                    id: room.id
+                }
+            }
+        }
+    })
+
+    if (!isUserInTheRoom) {
+        res.status(401).json({
+            message: "You are not part of this room!"
+        })
+    }
 
     res.json({
         room
