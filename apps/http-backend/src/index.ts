@@ -58,9 +58,10 @@ app.post('/signin', async (req, res) => {
 
     const parsedData = SignInSchema.safeParse(req.body)
     if (!parsedData.success) {
-        return res.status(400).json({
+        res.status(400).json({
             message: "Incorrect credentials"
         })
+        return;
     }
 
     try {
@@ -71,17 +72,21 @@ app.post('/signin', async (req, res) => {
         })
 
         if (!user) {
-            return res.status(404).json({
+            console.log("User not found:::::", user)
+            res.status(404).json({
                 message: "User not found!"
             })
+            return;
         }
 
         const isMatch = await bcrypt.compare(parsedData.data.password, user.password)
 
+        console.log("isMAtched::", isMatch)
         if (!isMatch) {
-            return res.status(401).json({
+            res.status(401).json({
                 message: "Password is incorrect"
             })
+            return;
         }
         const token = jwt.sign({
             userId: user?.id,
@@ -92,6 +97,9 @@ app.post('/signin', async (req, res) => {
         })
     } catch (error) {
         console.log("Error while signin in::", error)
+        res.status(401).json({
+            message: "Something doesn't seem right"
+        })
     }
 
 })
