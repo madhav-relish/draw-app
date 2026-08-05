@@ -27,6 +27,15 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         return
     }
 
+    const handleResize = () => {
+        canvas.height = window.innerHeight
+        canvas.width = window.innerWidth
+        redrawCanvas(existingShapes, canvas, ctx)
+    }
+
+    window.addEventListener('resize', handleResize)
+    handleResize() // For the initial sizing
+
     socket.onmessage = (event) => {
 
         const message = JSON.parse(event.data)
@@ -34,12 +43,12 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         if (message.type = "chat") {
             const parsedShape = JSON.parse(message?.message);
             existingShapes?.push(parsedShape?.shape)
-            clearCanvas(existingShapes, canvas, ctx)
+            redrawCanvas(existingShapes, canvas, ctx)
         }
 
     }
 
-    clearCanvas(existingShapes, canvas, ctx)
+    redrawCanvas(existingShapes, canvas, ctx)
 
     let clicked = false;
     let startX = 0;
@@ -51,14 +60,28 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
     canvas.addEventListener("mousedown", (e) => {
         console.log("MouseDown")
         clicked = true;
-        startX = e.clientX;
-        startY = e.clientY;
+        const coordinates = getCanvasCoordinates(canvas, e)
+        startX = coordinates.x;
+        startY = coordinates.y;
+    })
+
+    canvas.addEventListener("mousemove", (e) => {
+        if (clicked) {
+            console.log("Clicked")
+            const coordinates = getCanvasCoordinates(canvas, e)
+            const width = coordinates.x - startX
+            const height = coordinates.y - startY
+            redrawCanvas(existingShapes, canvas, ctx)
+            // ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.strokeRect(startX, startY, width, height)
+        }
     })
 
     canvas.addEventListener("mouseup", (e) => {
         clicked = false;
-        const width = e.clientX - startX
-        const height = e.clientY - startY
+        const coordinates = getCanvasCoordinates(canvas, e)
+        const width = coordinates.x - startX
+        const height = coordinates.y - startY
 
         let newShape: Shape | null = {
             type: 'rect',
@@ -83,20 +106,9 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
     })
 
 
-
-    canvas.addEventListener("mousemove", (e) => {
-        if (clicked) {
-            console.log("Clicked")
-            const width = e.clientX - startX
-            const height = e.clientY - startY
-            clearCanvas(existingShapes, canvas, ctx)
-            // ctx.clearRect(0, 0, canvas.width, canvas.height)
-            ctx.strokeRect(startX, startY, width, height)
-        }
-    })
 }
 
-const clearCanvas = (existingShapes: Shape[], canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+const redrawCanvas = (existingShapes: Shape[], canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -105,5 +117,18 @@ const clearCanvas = (existingShapes: Shape[], canvas: HTMLCanvasElement, ctx: Ca
     })
 
 }
+
+const getCanvasCoordinates = (canvas: HTMLCanvasElement, e: MouseEvent) => {
+
+    const rect = canvas.getBoundingClientRect()
+    console.log("Canvas Co-ordinates::", rect)
+
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    }
+}
+
+
 
 
