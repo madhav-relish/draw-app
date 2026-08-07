@@ -1,0 +1,1 @@
+export type Tool = 'rect' | 'circle' | 'pencil'

@@ -1,6 +1,8 @@
 import { initDraw } from "@/draw";
 import { useEffect, useRef, useState } from "react";
 import { Loading } from "@repo/ui";
+import { Tool } from "@/types/canvasTypes";
+import { ToolBar } from "./ToolBar";
 
 
 export const Canvas = ({ roomId, socket }: {
@@ -9,6 +11,12 @@ export const Canvas = ({ roomId, socket }: {
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedTool, setSelectedTool] = useState<Tool>('rect');
+    const selectedToolRef = useRef(selectedTool)
+
+    useEffect(() => {
+        selectedToolRef.current = selectedTool
+    }, [selectedTool])
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -16,7 +24,7 @@ export const Canvas = ({ roomId, socket }: {
 
             const canvas = canvasRef.current;
 
-            initDraw(canvas, socket, roomId)
+            initDraw(canvas, socket, roomId, () => selectedToolRef.current)
             setIsLoading(false)
         }
 
@@ -28,7 +36,7 @@ export const Canvas = ({ roomId, socket }: {
         height: '100vh',
         overflow: 'hidden'
     }}>
-
+        <ToolBar selectedTool={selectedTool} setSelectedTool={setSelectedTool} />
         <canvas ref={canvasRef}
             width={window.innerWidth} height={window.innerHeight}
         />

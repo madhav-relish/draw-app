@@ -24,6 +24,7 @@ export const JoinRoomCard: React.FC = () => {
       const response = await axios.get(`${BACKEND_URL}/room/${joinRoomSlug.trim()}`);
       const room = response.data.room;
 
+
       if (!room) {
         setJoinError("Room not found. Please double check the room name.");
         setIsJoining(false);
@@ -33,8 +34,12 @@ export const JoinRoomCard: React.FC = () => {
       // Navigate to room canvas
       router.push(`/canvas/${room.id}`);
     } catch (err: any) {
-      console.error("Join room error:", err);
-      setJoinError("Failed to join room. Please check your network connection.");
+      if (err.response.status == 404 || err.response.status == 401) {
+        setJoinError(err.response.data.message);
+      }
+      else {
+        setJoinError("Failed to join room. Please check your network connection.");
+      }
     } finally {
       setIsJoining(false);
     }
