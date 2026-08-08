@@ -1,3 +1,7 @@
 - Add auth for receving chats in room (Even without a token user is able
     to open the room url and get all the chats)
 - Do not allow user to join who is not a part of that room
+
+- Add the text tool - Done
+- Add pan and zoom
+- Demo Room(optional for now)
