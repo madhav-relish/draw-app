@@ -1,1 +1,10 @@
 export type Tool = 'rect' | 'circle' | 'pencil'
+
+export type Shape = {
+    type: 'rect',
+    x: number,
+    y: number,
+    height: number,
+    width: number
+} | { type: 'circle', centerX: number, centerY: number, radius: number }
+    | { type: 'pencil', path: { x: number, y: number }[] }
