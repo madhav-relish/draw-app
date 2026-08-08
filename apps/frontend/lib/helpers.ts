@@ -16,6 +16,10 @@ export const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape) => {
             ctx.lineTo(shape.path[i].x + 0.5, shape.path[i].y + 0.5)
         }
         ctx.stroke();
+    } else if (shape.type === 'text') {
+        ctx.textBaseline = "top"
+        ctx.font = '20px sans-serif'
+        ctx.fillText("Hello world How are you", shape.x, shape.y)
     }
 
 }

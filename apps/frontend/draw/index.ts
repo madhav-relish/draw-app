@@ -42,6 +42,8 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
     let currentPath: { x: number, y: number }[] = []
     ctx.lineCap = 'round';   // Makes the ends of lines smooth
     ctx.lineJoin = 'round';
+    let newShape: Shape | null = null
+    let activeTextarea = null;
 
     // Start x, start y, width, height
     // ctx?.strokeRect(25, 25, 100, 100);
@@ -90,7 +92,7 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         const height = coordinates.y - startY
         const tool = getSelectedTool()
 
-        let newShape: Shape | null = null
+
 
         if (tool === 'rect') {
             newShape = {
@@ -113,8 +115,8 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
                 path: currentPath
             }
         }
-
         if (newShape) {
+            console.log("New shape::", newShape)
             existingShapes?.push(newShape)
 
             socket.send(JSON.stringify({
@@ -127,7 +129,69 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
 
         }
     })
+
+    canvas.addEventListener('click', (e) => {
+        const tool = getSelectedTool()
+        if (activeTextarea || tool !== 'text') return;
+        const coordinates = getCanvasCoordinates(canvas, e)
+
+
+
+        if (tool === 'text') {
+            console.log("Clicked text")
+            if (activeTextarea) return
+            createCanvasTextArea(activeTextarea, coordinates.x, coordinates.y, ctx)
+
+        }
+
+    })
 }
+
+
+export const createCanvasTextArea = (activeTextArea: HTMLTextAreaElement | null, x: number, y: number, ctx: CanvasRenderingContext2D) => {
+    // Create the html textare element
+    if (activeTextArea) return
+    const textArea = document.createElement('textarea')
+    textArea.className = "canvas-textArea"
+
+    // Position the textare on the click position
+    textArea.style.position = 'fixed'
+    textArea.style.left = `${x}px`
+    textArea.style.top = `${y}px`
+    textArea.style.width = '100px'
+    textArea.style.height = '50px'
+    textArea.style.border = '1px dashed black'
+    textArea.style.outline = 'none'
+
+
+    console.log("activeTextArea", activeTextArea)
+
+    // create the html text drawing when user click away the textbox (on blur)
+    textArea.addEventListener('blur', (e) => {
+
+        //Call the draw function
+
+        textArea.remove();
+        activeTextArea = null;
+
+    }
+
+
+    )
+    document.body.appendChild(textArea);
+    textArea.focus()
+}
+
+export const drawTextToCanvas = (newShape: Shape, text: 'string', x: number, y: number, ctx: CanvasRenderingContext2D) => {
+    newShape = {
+        type: 'text',
+        text: text,
+        x: x,
+        y: y
+    }
+    drawShape(ctx, newShape)
+}
+
 
 
 
