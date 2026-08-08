@@ -1,17 +1,7 @@
 
-import { Tool } from "@/types/canvasTypes";
+import type { Shape, Tool } from "@/types/canvasTypes";
 import { getExistingShapes } from "./http";
-
-
-export type Shape = {
-    type: 'rect',
-    x: number,
-    y: number,
-    height: number,
-    width: number
-} | { type: 'circle', centerX: number, centerY: number, radius: number }
-    | { type: 'pencil', path: { x: number, y: number }[] }
-
+import { drawShape, getCanvasCoordinates, handleResize, redrawCanvas } from "@/lib/helpers";
 
 export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roomId: string, getSelectedTool: () => Tool) {
 
@@ -24,20 +14,13 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         console.log("error occured inside draw/index.ts::", error)
     }
 
-    console.log({ existingShapes })
-
     if (!ctx) {
         return
     }
 
-    const handleResize = () => {
-        canvas.height = window.innerHeight
-        canvas.width = window.innerWidth
-        redrawCanvas(existingShapes, canvas, ctx)
-    }
 
-    window.addEventListener('resize', handleResize)
-    handleResize() // For the initial sizing
+    window.addEventListener('resize', () => handleResize(canvas, existingShapes, ctx))
+    handleResize(canvas, existingShapes, ctx) // For the initial sizing
 
     socket.onmessage = (event) => {
 
@@ -57,6 +40,10 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
     let startX = 0;
     let startY = 0;
     let currentPath: { x: number, y: number }[] = []
+    ctx.lineCap = 'round';   // Makes the ends of lines smooth
+    ctx.lineJoin = 'round';
+    let newShape: Shape | null = null
+    let activeTextarea = null;
 
     // Start x, start y, width, height
     // ctx?.strokeRect(25, 25, 100, 100);
@@ -92,7 +79,7 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
                 ctx.arc(startX, startY, radius, 0, 2 * Math.PI)
                 ctx.stroke()
             } else if (tool === 'pencil') {
-                currentPath.push({ x: coordinates.x, y: coordinates.y })
+                currentPath.push({ x: coordinates.x + 0.5, y: coordinates.y + 0.5 })
             }
             drawShape(ctx, { type: 'pencil', path: currentPath })
         }
@@ -105,7 +92,7 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         const height = coordinates.y - startY
         const tool = getSelectedTool()
 
-        let newShape: Shape | null = null
+
 
         if (tool === 'rect') {
             newShape = {
@@ -128,10 +115,8 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
                 path: currentPath
             }
         }
-
         if (newShape) {
-
-            console.log("NEW shape:::", newShape)
+            console.log("New shape::", newShape)
             existingShapes?.push(newShape)
 
             socket.send(JSON.stringify({
@@ -145,49 +130,72 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         }
     })
 
+    canvas.addEventListener('click', (e) => {
+        const tool = getSelectedTool()
+        if (activeTextarea || tool !== 'text') return;
+        const coordinates = getCanvasCoordinates(canvas, e)
 
-}
 
-const redrawCanvas = (existingShapes: Shape[], canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+        if (tool === 'text') {
+            console.log("Clicked text")
+            if (activeTextarea) return
+            createCanvasTextArea(activeTextarea, coordinates.x, coordinates.y, ctx)
 
-    existingShapes?.map((shape) => {
-        drawShape(ctx, shape)
-    })
-
-}
-
-const getCanvasCoordinates = (canvas: HTMLCanvasElement, e: MouseEvent) => {
-
-    const rect = canvas.getBoundingClientRect()
-    console.log("Canvas Co-ordinates::", rect)
-
-    return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-    }
-}
-
-const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape) => {
-    ctx.beginPath();
-    if (shape.type === 'rect') {
-        ctx.strokeRect(shape.x, shape.y, shape.width, shape.height)
-    } else if (shape.type === 'circle') {
-        //Since Angles in 2D Canvas are taken in Radian
-        const degToRad = (deg: number) => (deg * Math.PI) / 180;
-
-        ctx.arc(shape.centerX, shape.centerY, shape.radius, degToRad(0), degToRad(360))
-        ctx.stroke();
-    } else if (shape.type === 'pencil' && shape.path.length > 0) {
-        ctx.moveTo(shape.path[0].x, shape.path[0].y)
-        for (let i = 1; i < shape.path.length; i++) {
-            ctx.lineTo(shape.path[i].x, shape.path[i].y)
         }
-        ctx.stroke();
+
+    })
+}
+
+
+export const createCanvasTextArea = (activeTextArea: HTMLTextAreaElement | null, x: number, y: number, ctx: CanvasRenderingContext2D) => {
+    // Create the html textare element
+    if (activeTextArea) return
+    const textArea = document.createElement('textarea')
+    textArea.className = "canvas-textArea"
+
+    // Position the textare on the click position
+    textArea.style.position = 'fixed'
+    textArea.style.left = `${x}px`
+    textArea.style.top = `${y}px`
+    textArea.style.width = '100px'
+    textArea.style.height = '50px'
+    textArea.style.border = '1px dashed black'
+    textArea.style.outline = 'none'
+
+
+    console.log("activeTextArea", activeTextArea)
+
+    // create the html text drawing when user click away the textbox (on blur)
+    textArea.addEventListener('blur', (e) => {
+
+        //Call the draw function
+
+        textArea.remove();
+        activeTextArea = null;
+
     }
 
+
+    )
+    document.body.appendChild(textArea);
+    textArea.focus()
 }
+
+export const drawTextToCanvas = (newShape: Shape, text: 'string', x: number, y: number, ctx: CanvasRenderingContext2D) => {
+    newShape = {
+        type: 'text',
+        text: text,
+        x: x,
+        y: y
+    }
+    drawShape(ctx, newShape)
+}
+
+
+
+
+
 
 
 
