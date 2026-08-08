@@ -49,7 +49,7 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <a
-            href="#pricing"
+            href="/demo"
             className="inline-flex items-center justify-center px-5 h-10 rounded-full border-2 border-border bg-foreground text-background font-sans font-semibold text-sm transition-brutal shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 active:scale-96"
             data-testid="header-cta"
           >

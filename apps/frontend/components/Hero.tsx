@@ -111,7 +111,7 @@ export default function Hero() {
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center w-full"
         >
           <a
-            href="#pricing"
+            href="/demo"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 h-14 rounded-full border-2 border-border bg-primary text-white font-sans font-bold shadow-[4px_4px_0_0_var(--border-color)] hover:shadow-[8px_8px_0_0_var(--border-color)] hover:-translate-y-1 active:translate-y-0 transition-brutal"
             data-testid="hero-cta-primary"
           >

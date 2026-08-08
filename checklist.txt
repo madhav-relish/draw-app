@@ -4,4 +4,4 @@
 
 - Add the text tool - Done
 - Add pan and zoom
-- Demo Room(optional for now)
+- Demo Room - Done (Instant random room provisioning + public link sharing)
