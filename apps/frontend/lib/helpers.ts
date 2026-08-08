@@ -19,7 +19,14 @@ export const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape) => {
     } else if (shape.type === 'text') {
         ctx.textBaseline = "top"
         ctx.font = '20px sans-serif'
-        ctx.fillText("Hello world How are you", shape.x, shape.y)
+
+        const lines = shape.text.split('\n');
+        const lineHeight = 24
+
+        lines.forEach((line, index) => {
+
+            ctx.fillText(line, shape.x, shape.y + (index * lineHeight))
+        })
     }
 
 }
