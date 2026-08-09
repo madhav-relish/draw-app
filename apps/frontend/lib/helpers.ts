@@ -1,3 +1,5 @@
+import { Shape } from "@/types/canvasTypes";
+
 export const getThemeColor = () => {
     if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
         return '#F4F4F0'; // Light cream/white stroke for dark mode
