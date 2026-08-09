@@ -1,7 +1,7 @@
 
 import type { Shape, Tool } from "@/types/canvasTypes";
 import { getExistingShapes } from "./http";
-import { drawShape, getCanvasCoordinates, handleResize, redrawCanvas } from "@/lib/helpers";
+import { drawShape, getCanvasCoordinates, getThemeColor, handleResize, redrawCanvas } from "@/lib/helpers";
 
 export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roomId: string, getSelectedTool: () => Tool) {
 
@@ -18,6 +18,10 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         return
     }
 
+    const onThemeChange = () => {
+        redrawCanvas(existingShapes, canvas, ctx);
+    };
+    window.addEventListener('themechange', onThemeChange);
 
     window.addEventListener('resize', () => handleResize(canvas, existingShapes, ctx))
     handleResize(canvas, existingShapes, ctx) // For the initial sizing
@@ -45,9 +49,6 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
     let newShape: Shape | null = null
     let activeTextarea = null;
 
-    // Start x, start y, width, height
-    // ctx?.strokeRect(25, 25, 100, 100);
-
     canvas.addEventListener("mousedown", (e) => {
         console.log("MouseDown")
         clicked = true;
@@ -62,16 +63,18 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
 
     canvas.addEventListener("mousemove", (e) => {
         if (clicked) {
-            console.log("Clicked")
             const coordinates = getCanvasCoordinates(canvas, e)
             const width = coordinates.x - startX
             const height = coordinates.y - startY
             const tool = getSelectedTool()
             redrawCanvas(existingShapes, canvas, ctx)
 
-            if (tool == 'rect') {
+            const strokeColor = getThemeColor();
+            ctx.strokeStyle = strokeColor;
+            ctx.fillStyle = strokeColor;
+            ctx.lineWidth = 2;
 
-                // ctx.clearRect(0, 0, canvas.width, canvas.height)
+            if (tool == 'rect') {
                 ctx.strokeRect(startX, startY, width, height)
             } else if (tool === 'circle') {
                 const radius = Math.hypot(width, height)

@@ -119,12 +119,14 @@ app.post('/create-room', middleware, async (req, res) => {
         const room = await prismaClient.room.create({
             data: {
                 slug: parsedData.data.name,
-                adminId: userId
+                adminId: userId,
+                isPublic: true
             }
         })
 
         res.json({
-            roomId: room.id
+            roomId: room.id,
+            slug: room.slug
         })
     } catch (e) {
         console.log("Error in creating room::", e)
@@ -133,6 +135,43 @@ app.post('/create-room', middleware, async (req, res) => {
         })
     }
 })
+
+app.post('/demo-room', async (req, res) => {
+    try {
+        const randomId = Math.random().toString(36).substring(2, 9);
+        const slug = `demo-${randomId}`;
+
+        const room = await prismaClient.room.create({
+            data: {
+                slug,
+                isPublic: true
+            }
+        });
+
+        res.json({
+            roomId: room.id,
+            slug: room.slug
+        });
+    } catch (e) {
+        console.error("Error creating demo room:", e);
+        res.status(500).json({
+            message: "Failed to create demo room"
+        });
+    }
+});
+
+app.get('/guest-token', (req, res) => {
+    const guestId = "guest_" + Math.random().toString(36).substring(2, 10);
+    const token = jwt.sign({
+        userId: guestId,
+        isGuest: true
+    }, JWT_SECRET);
+
+    res.json({
+        token,
+        guestId
+    });
+});
 
 app.get("/chat/:roomId", async (req, res) => {
 
@@ -146,7 +185,7 @@ app.get("/chat/:roomId", async (req, res) => {
             orderBy: {
                 id: 'desc'
             },
-            take: 50
+            take: 100
         })
         res.json({
             messages
@@ -158,38 +197,32 @@ app.get("/chat/:roomId", async (req, res) => {
 
 app.get("/room/:slug", async (req, res) => {
     const slug = req.params.slug;
-    const room = await prismaClient.room.findFirst({
+    let room = await prismaClient.room.findFirst({
         where: {
             slug
         }
     });
 
     if (!room) {
-        res.status(404).json({
-            message: "Room not found!"
-        })
-        return
-    }
-
-    const isUserInTheRoom = prismaClient.user.findFirst({
-        where: {
-            rooms: {
-                some: {
-                    id: room.id
+        try {
+            room = await prismaClient.room.create({
+                data: {
+                    slug,
+                    isPublic: true
                 }
-            }
+            });
+        } catch (e) {
+            console.error("Error auto-creating room:", e);
+            res.status(404).json({
+                message: "Room not found!"
+            });
+            return;
         }
-    })
-
-    if (!isUserInTheRoom) {
-        res.status(401).json({
-            message: "You are not part of this room!"
-        })
     }
 
     res.json({
         room
-    })
+    });
 })
 
 app.get("/me", middleware, async (req, res) => {

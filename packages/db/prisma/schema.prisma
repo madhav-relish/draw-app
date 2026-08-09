@@ -28,8 +28,9 @@ model Room{
 id Int @id @default(autoincrement())
 slug String @unique
 createdAt DateTime @default(now())
-adminId String 
-admin User @relation(fields: [adminId], references: [id])
+isPublic Boolean @default(true)
+adminId String? 
+admin User? @relation(fields: [adminId], references: [id])
 chats Chat[]
 }
 
@@ -37,7 +38,7 @@ model Chat{
 id Int @id @default(autoincrement())
 roomId Int
 message String
-userId String 
+userId String? 
 room Room @relation(fields: [roomId], references: [id])
-chat User @relation(fields: [userId], references: [id])
+chat User? @relation(fields: [userId], references: [id])
 }
