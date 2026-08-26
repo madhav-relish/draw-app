@@ -13,34 +13,38 @@ interface User {
 
 const users: User[] = [];
 
-function checkUser(token: string): string | null {
+async function checkUser(token: string): Promise<string | null> {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
 
-    if (typeof decoded == "string") {
+    if (typeof decoded == "string" || !decoded || !decoded.userId) {
       return null;
     }
 
-    if (!decoded || !decoded.userId) {
-      return null;
+    if (typeof decoded.userId === "string" && decoded.userId.startsWith("guest_")) {
+      return decoded.userId;
     }
 
-    return decoded.userId;
+    const dbUser = await prismaClient.user.findUnique({
+      where: { id: decoded.userId }
+    });
+
+    return dbUser ? dbUser.id : null;
   } catch (e) {
     return null;
   }
 }
 
-wss.on('connection', function connection(ws, request) {
+wss.on('connection', async function connection(ws, request) {
   const url = request.url;
   if (!url) {
     return;
   }
   const queryParams = new URLSearchParams(url.split('?')[1]);
   const token = queryParams.get('token') || "";
-  let userId = checkUser(token);
+  let userId = await checkUser(token);
 
-  // If unauthenticated, assign a unique guest ID so they can collaborate
+  // If unauthenticated or user not found in DB, assign a unique guest ID so they can collaborate
   if (!userId) {
     userId = "guest_" + Math.random().toString(36).substring(2, 10);
   }
@@ -91,13 +95,28 @@ wss.on('connection', function connection(ws, request) {
 
         const isGuest = userId.startsWith("guest_");
 
-        await prismaClient.chat.create({
-          data: {
-            roomId: Number(roomId),
-            message,
-            userId: isGuest ? null : userId
+        try {
+          await prismaClient.chat.create({
+            data: {
+              roomId: Number(roomId),
+              message,
+              userId: isGuest ? null : userId
+            }
+          });
+        } catch (e) {
+          console.error("Failed to save chat with userId, retrying with null userId:", e);
+          try {
+            await prismaClient.chat.create({
+              data: {
+                roomId: Number(roomId),
+                message,
+                userId: null
+              }
+            });
+          } catch (err) {
+            console.error("Failed to save chat to DB:", err);
           }
-        });
+        }
 
         users.forEach(user => {
           if (user.rooms.includes(String(roomId))) {
