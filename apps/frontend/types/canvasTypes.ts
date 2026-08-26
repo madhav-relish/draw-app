@@ -1,4 +1,4 @@
-export type Tool = 'rect' | 'circle' | 'pencil' | 'text'
+export type Tool = 'rect' | 'circle' | 'pencil' | 'text' | 'pan'
 
 export type Shape = {
     type: 'rect',

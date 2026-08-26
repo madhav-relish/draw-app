@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Tool } from "@/types/canvasTypes";
-import { Circle, Pencil, Square, TextCursorIcon } from "lucide-react";
+import { Circle, HandIcon, Pencil, Square, TextCursorIcon } from "lucide-react";
 
 interface ToolItem {
     type: Tool;
@@ -33,6 +33,12 @@ const tools: ToolItem[] = [
         name: 'Text',
         shortcut: '4',
         icon: <TextCursorIcon size={18} strokeWidth={2.2} />
+    },
+    {
+        type: 'pan',
+        name: "Pan",
+        shortcut: '5',
+        icon: <HandIcon size={18} strokeWidth={2.2} />
     }
 ];
 
@@ -74,8 +80,8 @@ export const ToolBar = ({ selectedTool, setSelectedTool }: ToolBarProps) => {
                             type="button"
                             onClick={() => setSelectedTool(tool.type)}
                             className={`relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-150 active:scale-95 cursor-pointer ${isActive
-                                    ? 'bg-primary text-white shadow-sm font-semibold'
-                                    : 'text-foreground/75 hover:text-foreground hover:bg-foreground/5 dark:hover:bg-foreground/10'
+                                ? 'bg-primary text-white shadow-sm font-semibold'
+                                : 'text-foreground/75 hover:text-foreground hover:bg-foreground/5 dark:hover:bg-foreground/10'
                                 }`}
                             aria-label={`${tool.name} tool`}
                         >

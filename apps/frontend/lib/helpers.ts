@@ -39,26 +39,40 @@ export const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape) => {
     }
 };
 
-export const getCanvasCoordinates = (canvas: HTMLCanvasElement, e: MouseEvent) => {
+export const getCanvasCoordinates = (canvas: HTMLCanvasElement, e: MouseEvent,
+    panOffsetX: number = 0,
+    panOffsetY: number = 0
+) => {
     const rect = canvas.getBoundingClientRect();
     return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+        x: (e.clientX - rect.left) - panOffsetX,
+        y: (e.clientY - rect.top) - panOffsetY
     };
 };
 
-export const redrawCanvas = (existingShapes: Shape[], canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+export const redrawCanvas = (existingShapes: Shape[], canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D,
+    panOffsetX: number = 0,
+    panOffsetY: number = 0
+) => {
+    ctx.save()
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.translate(panOffsetX, panOffsetY)
 
     existingShapes?.forEach((shape) => {
         drawShape(ctx, shape);
     });
+
+    ctx.restore();
 };
 
-export const handleResize = (canvas: HTMLCanvasElement, existingShapes: Shape[], ctx: CanvasRenderingContext2D) => {
+export const handleResize = (canvas: HTMLCanvasElement, existingShapes: Shape[], ctx: CanvasRenderingContext2D,
+    panOffsetX: number = 0,
+    panOffsetY: number = 0
+) => {
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
-    redrawCanvas(existingShapes, canvas, ctx);
+    redrawCanvas(existingShapes, canvas, ctx, panOffsetX, panOffsetY);
 };
 
 

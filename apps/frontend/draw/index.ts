@@ -8,6 +8,12 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
     const ctx = canvas.getContext('2d');
     let existingShapes: Shape[] = []
 
+    //Pan variables
+    let panOffsetX = 0;
+    let panOffsetY = 0;
+    let panStartX = 0;
+    let panStartY = 0;
+
     try {
         existingShapes = await getExistingShapes(roomId)
     } catch (error) {
@@ -19,12 +25,12 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
     }
 
     const onThemeChange = () => {
-        redrawCanvas(existingShapes, canvas, ctx);
+        redrawCanvas(existingShapes, canvas, ctx, panOffsetX, panOffsetY);
     };
     window.addEventListener('themechange', onThemeChange);
 
-    window.addEventListener('resize', () => handleResize(canvas, existingShapes, ctx))
-    handleResize(canvas, existingShapes, ctx) // For the initial sizing
+    window.addEventListener('resize', () => handleResize(canvas, existingShapes, ctx, panOffsetX, panOffsetY))
+    handleResize(canvas, existingShapes, ctx, panOffsetX, panOffsetY) // For the initial sizing
 
     socket.onmessage = (event) => {
 
@@ -33,12 +39,12 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         if (message.type = "chat") {
             const parsedShape = JSON.parse(message?.message);
             existingShapes?.push(parsedShape?.shape)
-            redrawCanvas(existingShapes, canvas, ctx)
+            redrawCanvas(existingShapes, canvas, ctx, panOffsetX, panOffsetY)
         }
 
     }
 
-    redrawCanvas(existingShapes, canvas, ctx)
+    redrawCanvas(existingShapes, canvas, ctx, panOffsetX, panOffsetY)
 
     let clicked = false;
     let startX = 0;
@@ -49,26 +55,55 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
     let newShape: Shape | null = null
     let activeTextarea = null;
 
+
+
     canvas.addEventListener("mousedown", (e) => {
         console.log("MouseDown")
         clicked = true;
-        const coordinates = getCanvasCoordinates(canvas, e)
+
+
+        const tool = getSelectedTool()
+
+        if (tool === 'pan') {
+            panStartX = e.clientX;
+            panStartY = e.clientY
+            return;
+        }
+
+        const coordinates = getCanvasCoordinates(canvas, e, panOffsetX, panOffsetY)
         startX = coordinates.x;
         startY = coordinates.y;
 
-        if (getSelectedTool() === 'pencil') {
+        if (tool === 'pencil') {
             currentPath = [{ x: startX, y: startY }]
         }
+
     })
 
     canvas.addEventListener("mousemove", (e) => {
         if (clicked) {
-            const coordinates = getCanvasCoordinates(canvas, e)
+            const tool = getSelectedTool()
+            //Handle Pan action
+            if (tool === 'pan') {
+                const deltaX = e.clientX - panStartX;
+                const deltaY = e.clientY - panStartY;
+                panStartX = e.clientX;
+                panStartY = e.clientY;
+
+                panOffsetX += deltaX;
+                panOffsetY += deltaY;
+                redrawCanvas(existingShapes, canvas, ctx, panOffsetX, panOffsetY);
+                return;
+            }
+
+
+            const coordinates = getCanvasCoordinates(canvas, e, panOffsetX, panOffsetY)
             const width = coordinates.x - startX
             const height = coordinates.y - startY
-            const tool = getSelectedTool()
-            redrawCanvas(existingShapes, canvas, ctx)
+            redrawCanvas(existingShapes, canvas, ctx, panOffsetX, panOffsetY)
 
+            ctx.save();
+            ctx.translate(panOffsetX, panOffsetY)
             const strokeColor = getThemeColor();
             ctx.strokeStyle = strokeColor;
             ctx.fillStyle = strokeColor;
@@ -83,19 +118,21 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
                 ctx.stroke()
             } else if (tool === 'pencil') {
                 currentPath.push({ x: coordinates.x + 0.5, y: coordinates.y + 0.5 })
+                drawShape(ctx, { type: 'pencil', path: currentPath })
             }
-            drawShape(ctx, { type: 'pencil', path: currentPath })
+            ctx.restore();
         }
     })
 
     canvas.addEventListener("mouseup", (e) => {
+        if (!clicked) return;
         clicked = false;
-        const coordinates = getCanvasCoordinates(canvas, e)
-        const width = coordinates.x - startX
-        const height = coordinates.y - startY
         const tool = getSelectedTool()
 
-
+        if (tool === 'pan') return;
+        const coordinates = getCanvasCoordinates(canvas, e, panOffsetX, panOffsetY)
+        const width = coordinates.x - startX
+        const height = coordinates.y - startY
 
         if (tool === 'rect') {
             newShape = {
@@ -120,7 +157,7 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
         }
         if (newShape) {
             existingShapes?.push(newShape)
-
+            redrawCanvas(existingShapes, canvas, ctx, panOffsetX, panOffsetY);
             socket.send(JSON.stringify({
                 type: 'chat',
                 roomId,
@@ -141,14 +178,14 @@ export async function initDraw(canvas: HTMLCanvasElement, socket: WebSocket, roo
 
         const clientX = e.clientX
         const clientY = e.clientY // Because of postion: fixed we need to use this and not getCanvasCoordinates for textarea input box
-        const { x: canvasX, y: canvasY } = getCanvasCoordinates(canvas, e) //for the shape
+        const { x: canvasX, y: canvasY } = getCanvasCoordinates(canvas, e, panOffsetX, panOffsetY) //for the shape
 
         if (tool === 'text') {
             createCanvasTextArea(clientX, clientY, canvasX, canvasY, (newShape: Shape) => {
 
                 existingShapes.push(newShape);
 
-                redrawCanvas(existingShapes, canvas, ctx);
+                redrawCanvas(existingShapes, canvas, ctx, panOffsetX, panOffsetY);
 
                 socket.send(JSON.stringify({
                     type: 'chat',
