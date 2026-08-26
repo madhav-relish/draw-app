@@ -101,9 +101,8 @@ export const Canvas = ({ roomId, roomSlug, socket }: {
                 ref={canvasRef}
                 width={typeof window !== 'undefined' ? window.innerWidth : 1200}
                 height={typeof window !== 'undefined' ? window.innerHeight : 800}
-                className="cursor-crosshair"
+                className={`${selectedTool === 'pan' ? 'cursor-grab' : selectedTool === 'text' ? 'cursor-text' : 'cursor-crosshair'}`}
             />
         </div>
     );
 };
- 
