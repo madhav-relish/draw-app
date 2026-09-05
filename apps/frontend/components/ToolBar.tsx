@@ -42,6 +42,7 @@ const tools: ToolItem[] = [
     }
 ];
 
+
 interface ToolBarProps {
     selectedTool: Tool;
     setSelectedTool: (toolType: Tool) => void;
